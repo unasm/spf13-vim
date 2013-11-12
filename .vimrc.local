@@ -12,7 +12,8 @@ syntax on           " 语法高亮
 set ruler           " 显示标尺  
 set showcmd         " 输入的命令显示出来，看的清楚些  
 set cmdheight=1     " 命令行（在状态行下）的高度，设置为1  
-autocmd BufNewFile *.css,*.js,*.php,*.cpp,*.[ch],*.sh,*.java ks|call TitleSet()|'s
+"autocmd BufNewFile *.css,*.js,*.php,*.cpp,*.[ch],*.sh,*.java ks|call TitleSet()|'s | exe "normal G" 
+autocmd BufNewFile *.css,*.js,*.php,*.cpp,*.[ch],*.sh,*.java ks|call TitleSet()| exe "normal G"
 ""定义函数SetTitle，自动插入文件头 
 func TitleSet() 
 	"如果文件类型为.sh文件 
@@ -28,7 +29,7 @@ func TitleSet()
 		call append(line(".")+4, "\#########################################################################") 
 		call append(line(".")+5, "\#!/bin/bash") 
 		call append(line(".")+6, "") 
-	elseif &filetype == 'php'
+	elseif &filetype == 'php' 
 		call setline(1, "<?php") 
 		call append(line("."), "\/**") 
 		call append(line(".")+1, " * @name      ".expand("%")) 
@@ -36,12 +37,12 @@ func TitleSet()
 		call append(line(".")+3, " * @since     ".time) 
 		call append(line(".")+4, " */") 
 		call append(line(".")+5, "?>")
-    elseif &filetype == 'java' || &filetype == 'javascript'
-    	call append(line("."), "\/**") 
-		call append(line(".")+1, " * @name      ".expand("%")) 
-		call append(line(".")+2, " * @author    ".author) 
-		call append(line(".")+3, " * @since     ".time) 
-		call append(line(".")+4, "*\/") 
+    elseif &filetype == 'java' || &filetype == 'javascript' || &filetype == 'css'
+        call setline(1,"/**")
+		call append(line("."), " * @name      ".expand("%")) 
+		call append(line(".")+1, " * @author    ".author) 
+		call append(line(".")+2, " * @since     ".time) 
+		call append(line(".")+3, "*\/") 
     else
 		call setline(1, "/*************************************************************************") 
 		call append(line("."), "    > @File Name :  ".expand("%")) 
@@ -274,7 +275,13 @@ let Tlist_Use_Right_Window = 1 "在右侧窗口中显示taglist窗口
 "let g:miniBufExplMapWindowNavArrows = 1
 "let g:miniBufExplMapCTabSwitchBufs = 1
 "let g:miniBufExplModSelTarget = 1   
-nnoremap <silent><F8><F8> :TlistToggle<cr> 
+""nnoremap <silent><F8><F8> :TlistToggle<cr> 
+nnoremap <silent><F5><F5> :TagbarToggle<cr>
+let g:tagbar_ctags_bin = '/usr/local/bin/ctags'
+let g:tagbar_width = 30
+let g:tagbar_autoclose = 1
+let g:tagbar_autofocus = 1
+let g:tagbar_show_linenumbers = 1
 "觉得使用一个<F8>有点浪费了这个快捷键1
 inoremap l<space> <space>=<space>
 inoremap ll<space> l
@@ -332,20 +339,22 @@ endfunction
 inoremap PHPT author:<tab><tab><tab>unasm<cr>email:<tab><tab><tab>douunasm@gmail.com<cr>Last_modified:<tab><c-r>=strftime("%F %T")<cr><CR>
 inoremap NOW  <c-r>=strftime("%F %T")<cr>
 let mapleader = ","
-inoremap <buffer><silent><end> <esc>:call AppendQuote()<CR><esc>A
+inoremap <C-N> <C-R>=AppendQuote()<CR><esc><Right>
+inoremap <End> <C-R>=AppendQuote()<CR><esc><Right>
+" 可以通过C-N 或者是end自动补全一个，并且，使用了ctrl右手并没有移动，当时可以顺利的通过i,o决定下一列
 "inoremap <buffer><silent><end> <C-R>=AppendQuote()<cr>
 func AppendQuote()
 	"最终版本
-	"if &filetype != "html" && &filetype !="vim" && &filetype != "zsh"
-		"上面四种文件都不需要加分号，html文件，vimrc，zshrc 和bash的脚本vim zsh 是.vimrc .zshrc的filetype
-		let status =  CheckLine()
-		if status == '0'
-			exec "normal A;"
-		else 
-			exec "normal A"
-		endif
-	"endif
-	return 'normal'
+    if &filetype != "html" && &filetype !="vim" && &filetype != "sh"
+        "上面四种文件都不需要加分号，html文件，vimrc，zshrc 和bash的脚本vim zsh 是.vimrc .zshrc的filetype
+        let status =  CheckLine()
+        if status == '0'
+             execute "normal A;"
+        else 
+            exec "normal A"
+        endif
+    endif
+	return ''
 endfunc
 func CheckLine()
 	"这个经验，可以写一篇文章了吧
