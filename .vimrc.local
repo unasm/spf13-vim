@@ -1,19 +1,16 @@
 "可不可以让文件每隔一定时间自动保
 set shortmess=atI   " 启动的时候不显示那个援助乌干达儿童的提示  
 "awinpos 5 5          " 设定窗口位置  
-"set lines=40 columns=155    " 设定窗口大小  
 set nu              " 显示行号  
-colorscheme blazer   "之前之所以两个，是因为叠加之后的半透明，现在放弃（gnome不支持）
 set nowrap
 ""set guifont=Courier_New:h10:cANSI   " 设置字体  
-syntax on           " 语法高亮  
 "autocmd InsertLeave * se nocul  " 用浅色高亮当前行  
 "autocmd InsertEnter * se cul    " 用浅色高亮当前行  
 set ruler           " 显示标尺  
 set showcmd         " 输入的命令显示出来，看的清楚些  
 set cmdheight=1     " 命令行（在状态行下）的高度，设置为1  
 "autocmd BufNewFile *.css,*.js,*.php,*.cpp,*.[ch],*.sh,*.java ks|call TitleSet()|'s | exe "normal G" 
-autocmd BufNewFile *.css,*.js,*.php,*.cpp,*.[ch],*.sh,*.java ks|call TitleSet()| exe "normal G"
+autocmd BufNewFile *.css,*.js,*.php,*.cpp,*.[ch],*.sh,*.java,*.html ks|call TitleSet()| exe "normal G" 
 ""定义函数SetTitle，自动插入文件头 
 func TitleSet() 
 	"如果文件类型为.sh文件 
@@ -142,12 +139,8 @@ set ruler                   " 打开状态栏标尺
 set magic                   " 设置魔术
 set guioptions-=T           " 隐藏工具栏
 set guioptions-=m           " 隐藏菜单栏
-"set statusline=\ %<%F[%1*%M%*%n%R%H]%=\ %y\ %0(%{&fileformat}\ [%{(&fenc==\"\"?&enc:&fenc).(&bomb?\",BOM\":\"\")}]\ %c:%l/%L%)
-set statusline=\ %<%F[%1*%M%*%n%R%H]%=\%y\%(\ [%{(&fenc==\"\"?&enc:&fenc).(&bomb?\",BOM\":\"\")}]\ %c:%l/%L%)
-
 " 设置在状态行显示的信息
-set foldcolumn=0
-set foldmethod=indent 
+set foldmethod=marker 
 set foldlevel=3 
 set foldenable              " 开始折叠
 " 不要使用vi的键盘模式，而是vim自己的
@@ -192,8 +185,6 @@ set fencs=utf-8,ucs-bom,shift-jis,gb18030,gbk,gb2312,cp936
 set langmenu=zh_CN.UTF-8
 set helplang=cn
 " 我的状态行显示的内容（包括文件类型和解码）
-"set statusline=%F%m%r%h%w\ [FORMAT=%{&ff}]\ [TYPE=%Y]\ [POS=%l,%v][%p%%]\ %{strftime(\"%d/%m/%y\ -\ %H:%M\")}
-"set statusline=[%F]%y%r%m%*%=[Line:%l/%L,Column:%c][%p%%]
 " 总是显示状态行，当为1的时候，不显示状态
 set laststatus=2
 " 命令行（在状态行下）的高度，默认为1，这里是2
@@ -292,17 +283,27 @@ set guioptions+=r
 set guioptions-=L  
 set guioptions+=m
 
+set background=dark
+syntax enable
+colorscheme solarized
+hi Normal guibg=#99cc99 guifg=Black ctermbg=Black
 
-set cursorline
-hi Pmenu ctermbg=DarkCyan guibg=white guifg=DarkCyan
-hi comment term=none guifg=#000fff ctermfg=DarkGray
+hi Pmenu ctermbg=black guibg=grey guifg=DarkCyan ctermfg=DarkBlue
+hi comment term=None cterm=none guifg=#000fff ctermfg=DarkGray
 "  将注释变成这种黑灰色，不干扰视线也可以看清
-hi CursorLine   cterm=underline ctermbg=none  ctermfg=none guibg=NONE guifg=None
+set cursorline
 set cursorcolumn
-hi CursorColumn cterm=None ctermbg=DarkMagenta  ctermfg=white guibg=darkened guifg=white
-"if !did_filetype()
-"	    au BufRead,BufNewFile *             setfiletype text
-"endif
+"hi CursorLine cterm=underline ctermbg=none  ctermfg=none guibg=NONE guifg=None
+hi CursorLine   cterm=underline term=underline ctermfg=None guifg=#80a0ff gui=bold
+hi CursorColumn  term=standout ctermfg=None ctermbg=DarkCyan cterm=standout guifg=#80a0ff gui=bold guibg=#111111
+"下划线的方式，只是为不遮挡字体
+"hi CursorColumn cterm=None ctermbg=DarkCyan ctermfg=DarkCyan guibg=None guifg=None
+au WinLeave * set nocursorline nocursorcolumn
+au WinEnter * set cursorline cursorcolumn
+"只是为当前窗口高亮
+if !did_filetype()
+	    au BufRead,BufNewFile *             setfiletype text
+endif
 "打开javascript折叠
 let b:javascript_fold=1
 " 打开javascript对dom、html和css的支持
@@ -339,14 +340,14 @@ endfunction
 inoremap PHPT author:<tab><tab><tab>unasm<cr>email:<tab><tab><tab>douunasm@gmail.com<cr>Last_modified:<tab><c-r>=strftime("%F %T")<cr><CR>
 inoremap NOW  <c-r>=strftime("%F %T")<cr>
 let mapleader = ","
-inoremap <C-N> <C-R>=AppendQuote()<CR><esc><Right>
-inoremap <End> <C-R>=AppendQuote()<CR><esc><Right>
+inoremap <C-N> <C-R>=AppendQuote()<CR><Right>
+inoremap <End> <C-R>=AppendQuote()<CR><Right>
 " 可以通过C-N 或者是end自动补全一个，并且，使用了ctrl右手并没有移动，当时可以顺利的通过i,o决定下一列
 "inoremap <buffer><silent><end> <C-R>=AppendQuote()<cr>
 func AppendQuote()
 	"最终版本
-    if &filetype != "html" && &filetype !="vim" && &filetype != "sh"
-        "上面四种文件都不需要加分号，html文件，vimrc，zshrc 和bash的脚本vim zsh 是.vimrc .zshrc的filetype
+    if &filetype == 'php' || &filetype == "javascript" || &filetype == "cpp"
+        "目前就只针对上面几种文件类型吧
         let status =  CheckLine()
         if status == '0'
              execute "normal A;"
@@ -359,20 +360,22 @@ endfunc
 func CheckLine()
 	"这个经验，可以写一篇文章了吧
 	let line = getline(".")
-	let flag = match(line,'\c^\s*if\s\?(.*\s*{\? *$')
-	"如果是if(){这种形式的，结尾不添加分号，如果结尾含有下面的集中符号，也不添加分号
-	if flag == '0'
-		return 1
-	endif
-	let flag = match(line,'^.*[,}{>\[*;(/]\s*$')
-	if flag == '0'
-		return "1"
-	endif
-	let flag = match(line,'\c\sfunction\s[A-Z\s]\{1,30\}\(.*\)\s*{\?\s*$')
-	"如果是function(){这种形式的，结尾不添加分号，如果结尾含有下面的集中符号，也不添加分号,虽说有bug，但是够用了，function在一行开头失效，函数名不能长于30
-	if flag != -1
-		return 1
-	endif
+    let flag = match(line,'\c^\s*if\s\?(.*\s*{\? *$')
+    "\c忽略大小写
+    "如果是if(){这种形式的，结尾不添加分号，如果结尾含有下面的集中符号，也不添加分号
+    if flag == '-1'
+        return 1
+    endif
+    "如果在结尾发现这些符号，不添加分号
+    let flag = match(line,'^.*[,}{>\[*;(/]\s*$')
+    if flag == '-1'
+        return "1"
+    endif
+    let flag = match(line,'\c\sfunction\s[A-Z\s]\{1,30\}\(.*\)\s*{\?\s*$')
+    "如果是function(){这种形式的，结尾不添加分号，如果结尾含有下面的集中符号，也不添加分号,虽说有bug，但是够用了，function在一行开头失效，函数名不能长于30
+    if flag == "-1"
+        return 1
+    endif
 	return "0"
 endfunc
 "zR 打开所有的折叠
@@ -403,4 +406,14 @@ let g:tagbar_type_javascript = {
         \ 's:strings'
     \ ]
 \ }
+
+
+  let g:airline_theme_patch_func = 'AirlineThemePatch'
+  function! AirlineThemePatch(palette)
+    if g:airline_theme == 'badwolf'
+      for colors in values(a:palette.inactive)
+        let colors[3] = 245
+      endfor
+    endif
+  endfunction
 
